@@ -1,0 +1,13 @@
+
+# Generar documentación
+
+http://localhost:8000/docs
+
+# Instalar dependencias
+
+pip install fastapi uvicorn pyjwt aiomysql
+
+# Levantar servidor
+
+uvicorn nombre_del_archivo:app --reload
+
