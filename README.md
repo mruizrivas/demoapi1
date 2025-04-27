@@ -1,20 +1,14 @@
-# demoapi1
-
-# Prueba de API REST
 # Demo API - Dashboard de Valores Medidos
-
-
+## Prueba de API REST
 API REST segura + Frontend PWA + Notificaciones Push.
-
----
 
 ## 📦 Estructura del Proyecto
 
-/api/ -> API REST PHP (login, consultas, push) 
-/frontend/ -> Frontend web PWA Bootstrap 5 
-/sql/ -> Scripts SQL para creación de base de datos 
-/postman/ -> Colección Postman para pruebas API 
-composer.json -> Dependencias PHP 
+/api/ -> API REST PHP (login, consultas, push)
+/frontend/ -> Frontend web PWA Bootstrap 5
+/sql/ -> Scripts SQL para creación de base de datos
+/postman/ -> Colección Postman para pruebas API
+composer.json -> Dependencias PHP
 README.md -> Este archivo
 
 ## Requisitos PHP:
