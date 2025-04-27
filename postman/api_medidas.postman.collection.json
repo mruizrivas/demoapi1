@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "API Medidas",
+    "_postman_id": "12345678-abcd-efgh-ijkl-1234567890ab",
+    "description": "Colección para autenticar y obtener medidas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "cuenta", "value": "usuario1@example.com", "type": "text" },
+            { "key": "clave_acceso", "value": "1234", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/login.php",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "login.php"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener Medidas",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/api_medidas.php?fecha_inicio=2025-04-01&fecha_fin=2025-04-30",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "api_medidas.php"],
+          "query": [
+            { "key": "fecha_inicio", "value": "2025-04-01" },
+            { "key": "fecha_fin", "value": "2025-04-30" }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://tu-dominio.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

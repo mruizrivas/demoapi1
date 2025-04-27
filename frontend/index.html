@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard de Valores Medidos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#28a745">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <h1 class="text-center mb-4">Dashboard de Valores Medidos</h1>
+
+  <div class="card mx-auto" style="max-width: 400px;" id="loginCard">
+    <div class="card-body">
+      <h5 class="card-title">Login</h5>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="cuenta" class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="cuenta" required>
+        </div>
+        <div class="mb-3">
+          <label for="clave_acceso" class="form-label">Clave de Acceso</label>
+          <input type="password" class="form-control" id="clave_acceso" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card d-none" id="consultaCard">
+    <div class="card-body">
+      <h5 class="card-title">Consultar Medidas</h5>
+      <form id="medidasForm" class="row g-3">
+        <div class="col-md-6">
+          <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+          <input type="date" class="form-control" id="fecha_inicio" required>
+        </div>
+        <div class="col-md-6">
+          <label for="fecha_fin" class="form-label">Fecha Fin</label>
+          <input type="date" class="form-control" id="fecha_fin" required>
+        </div>
+        <div class="col-md-6">
+          <label for="tension_min" class="form-label">Tensión mínima</label>
+          <input type="number" step="0.01" class="form-control" id="tension_min">
+        </div>
+        <div class="col-md-6">
+          <label for="tension_max" class="form-label">Tensión máxima</label>
+          <input type="number" step="0.01" class="form-control" id="tension_max">
+        </div>
+        <div class="col-md-6">
+          <label for="peso_min" class="form-label">Peso mínimo</label>
+          <input type="number" step="0.01" class="form-control" id="peso_min">
+        </div>
+        <div class="col-md-6">
+          <label for="peso_max" class="form-label">Peso máxima</label>
+          <input type="number" step="0.01" class="form-control" id="peso_max">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-success w-100">Consultar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="text-end mt-2 d-none" id="logoutContainer">
+    <button class="btn btn-danger btn-sm" id="logoutBtn">Cerrar sesión</button>
+  </div>
+
+  <div class="table-responsive d-none mt-4" id="tablaContainer">
+    <table class="table table-bordered table-hover" id="tablaMedidas">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th><th>Zona</th><th>Fecha</th><th>Tensión</th><th>Peso</th><th>Estructura</th><th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+let token = '';
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const cuenta = document.getElementById('cuenta').value;
+  const clave_acceso = document.getElementById('clave_acceso').value;
+
+  const res = await fetch('../api/login.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `cuenta=${encodeURIComponent(cuenta)}&clave_acceso=${encodeURIComponent(clave_acceso)}`
+  });
+
+  const data = await res.json();
+  if (data.token) {
+    token = data.token;
+    showMessage('Login exitoso', 'success');
+    document.getElementById('loginCard').classList.add('d-none');
+    document.getElementById('consultaCard').classList.remove('d-none');
+    document.getElementById('logoutContainer').classList.remove('d-none');
+  } else {
+    showMessage('Login fallido', 'danger');
+  }
+});
+
+document.getElementById('medidasForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const fecha_inicio = document.getElementById('fecha_inicio').value;
+  const fecha_fin = document.getElementById('fecha_fin').value;
+  const tension_min = document.getElementById('tension_min').value;
+  const tension_max = document.getElementById('tension_max').value;
+  const peso_min = document.getElementById('peso_min').value;
+  const peso_max = document.getElementById('peso_max').value;
+
+  let url = `../api/api_medidas.php?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`;
+  
+  if (tension_min) url += `&tension_min=${tension_min}`;
+  if (tension_max) url += `&tension_max=${tension_max}`;
+  if (peso_min) url += `&peso_min=${peso_min}`;
+  if (peso_max) url += `&peso_max=${peso_max}`;
+
+  const res = await fetch(url, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+
+  const data = await res.json();
+  const tbody = document.querySelector('#tablaMedidas tbody');
+  tbody.innerHTML = '';
+
+  if (data.datos && data.datos.length > 0) {
+    data.datos.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.id}</td>
+        <td>${row.zona}</td>
+        <td>${row.fecha}</td>
+        <td>${row.tension}</td>
+        <td>${row.peso}</td>
+        <td>${row.estructura}</td>
+        <td>${row.observaciones}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('tablaContainer').classList.remove('d-none');
+  } else {
+    showMessage('No se encontraron medidas.', 'warning');
+    document.getElementById('tablaContainer').classList.add('d-none');
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  token = '';
+  document.getElementById('consultaCard').classList.add('d-none');
+  document.getElementById('tablaContainer').classList.add('d-none');
+  document.getElementById('logoutContainer').classList.add('d-none');
+  document.getElementById('loginCard').classList.remove('d-none');
+  showMessage('Sesión cerrada.', 'info');
+});
+
+function showMessage(message, type) {
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type} mt-3`;
+  alert.textContent = message;
+  document.querySelector('.container').prepend(alert);
+  setTimeout(() => alert.remove(), 3000);
+}
+
+// Registrar el Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('./service-worker.js');
+      console.log('Service Worker registrado:', registration.scope);
+
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        console.log('Permiso de notificaciones concedido.');
+      } else {
+        console.log('Permiso de notificaciones denegado.');
+      }
+    } catch (error) {
+      console.error('Error registrando Service Worker:', error);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
