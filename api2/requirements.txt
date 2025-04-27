@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pyjwt
+aiomysql
+python-multipart
